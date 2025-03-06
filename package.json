@@ -4,6 +4,10 @@
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.4.7",
     "@mui/styled-engine-sc": "^6.4.6",
+    "@prisma/client": "^6.4.1",
     "styled-components": "^6.1.15"
+  },
+  "devDependencies": {
+    "prisma": "^6.4.1"
   }
 }
