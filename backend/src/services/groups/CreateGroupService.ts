@@ -18,6 +18,16 @@ class CreateGroupService {
       throw new Error("Owner not found");
     }
 
+    const nameExists = await prismaClient.groups.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (nameExists) {
+      throw new Error("Nome de grupo já existe");
+    }
+
     const group = await prismaClient.groups.create({
       data: {
         name,
