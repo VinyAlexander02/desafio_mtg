@@ -4,6 +4,7 @@ import Button from "../Button";
 import UserModal from "../UserModal";
 import GroupModal from "../GroupModal";
 import { api } from "../../services/api";
+import { group } from "console";
 
 const StyledTable = styled.table`
   width: 90%;
@@ -70,8 +71,8 @@ interface Customer {
   name: string;
   email: string;
   password: string;
-  status: string;
-  groups: string[];
+  status: boolean;
+  Groups: Group[];
 }
 
 interface Group {
@@ -96,6 +97,7 @@ export default function UserGroupManagement() {
 
   async function loadCustomers() {
     const response = await api.get("/customer");
+
     setCustomers(response.data);
   }
 
@@ -118,9 +120,13 @@ export default function UserGroupManagement() {
     setIsModalOpen(true);
     setModalType("group");
   };
-
   const filteredUsers = filterGroup
-    ? customers.filter((customer) => customer.groups.includes(filterGroup))
+    ? customers.filter((customer) => {
+        return (
+          Array.isArray(customer.Groups) &&
+          customer.Groups.some((group) => group.name === filterGroup)
+        );
+      })
     : customers;
 
   return (
@@ -128,7 +134,12 @@ export default function UserGroupManagement() {
       <StyledTable>
         <H2>Gerenciamento de Usuários</H2>
         <Div>
-          <Select onChange={(e) => setFilterGroup(e.target.value)}>
+          <Select
+            onChange={(e) => {
+              const selectedGroup = e.target.value;
+              setFilterGroup(selectedGroup);
+            }}
+          >
             <option value="">Todos os Grupos</option>
             {groups.map((group) => (
               <option key={group.id} value={group.name}>
@@ -136,6 +147,7 @@ export default function UserGroupManagement() {
               </option>
             ))}
           </Select>
+
           <Button onClick={handleOpenUserModal}>Adicionar Usuário</Button>
         </Div>
         <Table>
@@ -154,17 +166,12 @@ export default function UserGroupManagement() {
               <tr key={customer.id}>
                 <Td>{customer.name}</Td>
                 <Td>{customer.email}</Td>
-                <Td>{customer.password}</Td>
+                <Td>********</Td> {/* Oculta a senha */}
                 <Td>{customer.status ? "ATIVO" : "INATIVO"}</Td>
                 <Td>
-                  {Array.isArray(customer.groups) && customer.groups.length > 0
-                    ? customer.groups
-                        .map((groupId) => {
-                          const group = groups.find((g) => g.id === groupId);
-                          return group ? group.name : "Grupo não encontrado"; // Aqui a lógica deve funcionar corretamente
-                        })
-                        .join(", ")
-                    : "Nenhum grupo associado"}
+                  {Array.isArray(customer.Groups) && customer.Groups.length > 0 // Alterado para customer.Groups
+                    ? customer.Groups.map((group) => group.name).join(", ") // Alterado para customer.Groups
+                    : "Nenhum grupo cadastrado"}
                 </Td>
                 <Td>
                   <TdButton>

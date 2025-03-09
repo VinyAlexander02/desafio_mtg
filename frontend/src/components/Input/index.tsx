@@ -1,3 +1,4 @@
+import React, { forwardRef } from "react";
 import styled from "styled-components";
 
 const Input = styled.input`
@@ -32,23 +33,22 @@ interface InputProps {
   label: string;
 }
 
-export default function InputText({
-  value,
-  type,
-  placeholder,
-  onChange,
-  label,
-}: Readonly<InputProps>) {
-  return (
-    <Container>
-      <Label>{label}</Label>
-      <Input
-        type={type}
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        required
-      />
-    </Container>
-  );
-}
+const InputText = forwardRef<HTMLInputElement, InputProps>(
+  ({ value, type, placeholder, onChange, label }, ref) => {
+    return (
+      <Container>
+        <Label>{label}</Label>
+        <Input
+          type={type}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          required
+          ref={ref}
+        />
+      </Container>
+    );
+  }
+);
+
+export default InputText;

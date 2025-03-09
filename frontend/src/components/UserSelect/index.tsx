@@ -1,5 +1,17 @@
-import React, { useState } from "react";
-import { styled } from "styled-components";
+import React, { useEffect, useState, forwardRef } from "react";
+import styled from "styled-components";
+import { api } from "../../services/api";
+
+const Select = styled.select`
+  background: #ffffff;
+  margin: 1em 0;
+  box-sizing: border-box;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+  border-radius: 8px;
+  border: none;
+  width: 100%;
+  padding: 16px 5px;
+`;
 
 const Label = styled.label`
   display: flex;
@@ -14,32 +26,39 @@ const Container = styled.div`
   width: 50%;
 `;
 
-const Select = styled.select`
-  background: #ffffff;
-  margin: 1em 0;
-  box-sizing: border-box;
-  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
-  border-radius: 8px;
-  border: none;
-  width: 100%;
-  padding: 16px 5px;
-`;
+interface Group {
+  id: string;
+  name: string;
+  description: string;
+  ownerId: string;
+}
 
-export default function UserRoleSelect() {
-  const [userRole, setUserRole] = useState("");
+// Usando forwardRef para encaminhar a referência
+const UserRoleSelect = forwardRef<HTMLSelectElement, {}>((_, ref) => {
+  const [groups, setGroups] = useState<Group[]>([]);
+
+  useEffect(() => {
+    loadGroups();
+  }, []);
+
+  async function loadGroups() {
+    const response = await api.get("/group");
+    setGroups(response.data);
+  }
+
   return (
     <Container>
       <Label>Grupo</Label>
-      <Select
-        id="userRole"
-        value={userRole}
-        onChange={(e) => setUserRole(e.target.value)}
-      >
+      <Select ref={ref}>
         <option value="">Selecione um grupo</option>
-        <option value="leadership">Liderança</option>
-        <option value="developer">Desenvolvedor</option>
-        <option value="datas">Dados</option>
+        {groups.map((group) => (
+          <option key={group.id} value={group.name}>
+            {group.name}
+          </option>
+        ))}
       </Select>
     </Container>
   );
-}
+});
+
+export default UserRoleSelect;

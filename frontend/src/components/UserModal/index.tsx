@@ -1,9 +1,9 @@
-// Modal.tsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
 import Button from "../Button";
 import InputText from "../Input";
 import UserRoleSelect from "../UserSelect";
+import InputSelect from "../InputSelect";
 
 const ModalContainer = styled.div`
   position: fixed;
@@ -51,27 +51,48 @@ interface ModalProps {
 }
 
 export default function UserModal({ onClose }: Readonly<ModalProps>) {
-  const [completName, setCompletName] = useState<string>("");
-  const [createUser, setCreateUser] = useState<string>("");
-  const [passwordCreateUser, setPasswordCreateUser] = useState<string>("");
+  const [completName, setCompletName] = useState("");
+  const [emailUser, setEmailUser] = useState("");
+  const [passwordCreateUser, setPasswordCreateUser] = useState("");
+  const [status, setStatus] = useState<boolean | undefined>(undefined);
+
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
+  const statusRef = useRef<HTMLSelectElement | null>(null);
+  const groupRef = useRef<HTMLSelectElement | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Nome:", completName);
+    console.log("Email:", emailUser);
+    console.log("Senha:", passwordCreateUser);
+    console.log("Status:", status);
+  };
+
+  const statusValue =
+    status === true ? "Ativo" : status === false ? "Inativo" : "";
+
   return (
     <ModalContainer>
       <ModalContent>
         <H1>Criar novo usuário</H1>
-        <Forms>
+        <Forms onSubmit={handleSubmit}>
           <InputText
             type="text"
             value={completName}
             placeholder="Digite o seu nome completo ..."
             onChange={setCompletName}
             label="Nome Completo"
+            ref={nameRef}
           />
           <InputText
             type="email"
-            value={createUser}
+            value={emailUser}
             placeholder="Digite o seu email ..."
-            onChange={setCreateUser}
+            onChange={setEmailUser}
             label="Email"
+            ref={emailRef} // Passando a referência
           />
           <InputText
             type="password"
@@ -79,9 +100,25 @@ export default function UserModal({ onClose }: Readonly<ModalProps>) {
             placeholder="Digite a sua senha ..."
             onChange={setPasswordCreateUser}
             label="Senha"
+            ref={passwordRef} // Passando a referência
           />
-          <UserRoleSelect />
-          <Button>Cadastrar</Button>
+          <InputSelect
+            label="Status"
+            value={statusValue}
+            onChange={(e) => {
+              if (e.target.value === "Ativo") setStatus(true);
+              else if (e.target.value === "Inativo") setStatus(false);
+            }}
+            options={[
+              { value: "", label: "Selecione uma opção" },
+              { value: "Ativo", label: "Ativo" },
+              { value: "Inativo", label: "Inativo" },
+            ]}
+            ref={statusRef} // Passando a referência, se aplicável
+          />
+          <UserRoleSelect ref={groupRef} />{" "}
+          {/* Adicionando referência ao UserRoleSelect, se aplicável */}
+          <Button type="submit">Cadastrar</Button>
           <CloseButton onClick={onClose}>Fechar</CloseButton>
         </Forms>
       </ModalContent>
