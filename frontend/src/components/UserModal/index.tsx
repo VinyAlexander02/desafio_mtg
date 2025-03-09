@@ -1,4 +1,4 @@
-import React, { useState, useRef, FormEvent } from "react";
+import { useState, useRef, FormEvent } from "react";
 import styled from "styled-components";
 import Button from "../Button";
 import InputText from "../Input";
@@ -51,7 +51,7 @@ const CloseButton = styled(Button)`
 
 interface ModalProps {
   onClose: () => void;
-  onUserAdded: () => void; // Nova prop para atualizar a lista
+  onUserAdded: () => void;
 }
 
 export default function UserModal({
@@ -79,7 +79,11 @@ export default function UserModal({
       !statusRef.current?.value ||
       groupRef.current?.value === undefined
     ) {
-      alert("Todos os campos são obrigatórios!");
+      Swal.fire({
+        title: "Todos os campos são obrigatórios!",
+        icon: "error",
+        draggable: true,
+      });
       return;
     }
 
@@ -92,8 +96,6 @@ export default function UserModal({
       status: status === true,
       groupIds: groupIdValue ? [groupIdValue] : [],
     };
-
-    console.log("Enviando payload:", JSON.stringify(payload, null, 2));
 
     try {
       const response = await api.post("/customer", payload, {

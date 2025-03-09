@@ -1,8 +1,11 @@
-// Modal.tsx
-import React, { useState } from "react";
+import { useState, useRef, FormEvent } from "react";
 import styled from "styled-components";
 import Button from "../Button";
 import InputText from "../Input";
+import ListUser from "../ListUser";
+import Swal from "sweetalert2";
+import { api } from "../../services/api";
+import axios from "axios";
 
 const ModalContainer = styled.div`
   position: fixed;
@@ -47,23 +50,72 @@ const CloseButton = styled(Button)`
 
 interface ModalProps {
   onClose: () => void;
+  onGroupAdded: () => void;
 }
 
-export default function GroupModal({ onClose }: Readonly<ModalProps>) {
-  const [completName, setCompletName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+export default function GroupModal({
+  onClose,
+  onGroupAdded,
+}: Readonly<ModalProps>) {
   const [groupName, setGroupName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+
+  const groupNameRef = useRef<HTMLInputElement | null>(null);
+  const descriptionRef = useRef<HTMLInputElement | null>(null);
+  const responseGroupRef = useRef<HTMLSelectElement | null>(null);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+
+    const customerIdValue = responseGroupRef.current?.value.trim();
+
+    const payload = {
+      name: groupNameRef.current?.value.trim(),
+      description: descriptionRef.current?.value.trim(),
+      ownerId: customerIdValue,
+    };
+
+    try {
+      const response = await api.post("/group", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Resposta da API:", response.data);
+      Swal.fire({
+        title: "Grupo cadastrado com sucesso!",
+        icon: "success",
+        draggable: true,
+      });
+
+      onGroupAdded();
+
+      setGroupName("");
+      setDescription("");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro da API:", error.response?.data);
+        alert(`Erro da API: ${JSON.stringify(error.response?.data, null, 2)}`);
+      } else if (error instanceof Error) {
+        console.error("Erro inesperado:", error.message);
+        alert(`Erro inesperado: ${error.message}`);
+      }
+    }
+  }
+
   return (
     <ModalContainer>
       <ModalContent>
         <H1>Criar novo grupo</H1>
-        <Forms>
+        <Forms onSubmit={handleSubmit}>
           <InputText
-            type="password"
+            type="text"
             value={groupName}
             placeholder="Digite o nome do grupo ..."
             onChange={setGroupName}
             label="Nome do Grupo"
+            ref={groupNameRef}
           />
           <InputText
             type="text"
@@ -71,14 +123,9 @@ export default function GroupModal({ onClose }: Readonly<ModalProps>) {
             placeholder="Digite a descrição ..."
             onChange={setDescription}
             label="Descrição"
+            ref={descriptionRef}
           />
-          <InputText
-            type="text"
-            value={completName}
-            placeholder="Digite o nome do responsável ..."
-            onChange={setCompletName}
-            label="Nome Responsável"
-          />
+          <ListUser ref={responseGroupRef} />
           <Button>Cadastrar</Button>
           <CloseButton onClick={onClose}>Fechar</CloseButton>
         </Forms>

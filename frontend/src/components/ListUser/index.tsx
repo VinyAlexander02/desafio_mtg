@@ -26,33 +26,31 @@ const Container = styled.div`
   width: 50%;
 `;
 
-interface Group {
+interface Customer {
   id: string;
   name: string;
-  description: string;
-  ownerId: string;
 }
 
-const UserRoleSelect = forwardRef<HTMLSelectElement, {}>((_, ref) => {
-  const [groups, setGroups] = useState<Group[]>([]);
+const ListUser = forwardRef<HTMLSelectElement, {}>((_, ref) => {
+  const [customers, setCustomers] = useState<Customer[]>([]);
 
   useEffect(() => {
     loadGroups();
   }, []);
 
   async function loadGroups() {
-    const response = await api.get("/group");
-    setGroups(response.data);
+    const response = await api.get("/customer");
+    setCustomers(response.data);
   }
 
   return (
     <Container>
-      <Label>Grupo</Label>
+      <Label>Responsável</Label>
       <Select ref={ref}>
-        <option value="">Selecione um grupo</option>
-        {groups.map((group) => (
-          <option key={group.id} value={group.id}>
-            {group.name}
+        <option value="">Selecione um responsável</option>
+        {customers.map((customer) => (
+          <option key={customer.id} value={customer.id}>
+            {customer.name}
           </option>
         ))}
       </Select>
@@ -60,4 +58,4 @@ const UserRoleSelect = forwardRef<HTMLSelectElement, {}>((_, ref) => {
   );
 });
 
-export default UserRoleSelect;
+export default ListUser;

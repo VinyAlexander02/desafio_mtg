@@ -123,6 +123,10 @@ export default function UserGroupManagement() {
     loadCustomers();
   };
 
+  const handleGroupAdded = () => {
+    loadGroups();
+  };
+
   const filteredUsers = filterGroup
     ? customers.filter((customer) => {
         return (
@@ -132,7 +136,7 @@ export default function UserGroupManagement() {
       })
     : customers;
 
-  async function handleDelete(id: string) {
+  async function handleDeleteCustomer(id: string) {
     try {
       await api.delete(`/customer?id=${id}`);
       Swal.fire({
@@ -146,6 +150,22 @@ export default function UserGroupManagement() {
 
     const allCustomers = customers.filter((customer) => customer.id !== id);
     setCustomers(allCustomers);
+  }
+
+  async function handleDeleteGroup(id: string) {
+    try {
+      await api.delete(`/group?id=${id}`);
+      Swal.fire({
+        title: "Grupo deletado com sucesso!",
+        icon: "success",
+        draggable: true,
+      });
+    } catch (error) {
+      console.log("Erro ao deletar", error);
+    }
+
+    const allGroups = groups.filter((group) => group.id !== id);
+    setGroups(allGroups);
   }
 
   return (
@@ -195,7 +215,9 @@ export default function UserGroupManagement() {
                 <Td>
                   <TdButton>
                     <Button>Editar</Button>
-                    <DeleteButton onClick={() => handleDelete(customer.id)}>
+                    <DeleteButton
+                      onClick={() => handleDeleteCustomer(customer.id)}
+                    >
                       Excluir
                     </DeleteButton>
                   </TdButton>
@@ -240,7 +262,9 @@ export default function UserGroupManagement() {
                 <Td>
                   <TdButton>
                     <Button>Editar</Button>
-                    <DeleteButton>Excluir</DeleteButton>
+                    <DeleteButton onClick={() => handleDeleteGroup(group.id)}>
+                      Excluir
+                    </DeleteButton>
                   </TdButton>
                 </Td>
               </tr>
@@ -249,10 +273,13 @@ export default function UserGroupManagement() {
         </Table>
       </StyledTable>
       {isModalOpen && modalType === "user" && (
-        <UserModal onClose={handleCloseModal} onUserAdded={handleUserAdded} /> // Adicione a prop onUserAdded aqui
+        <UserModal onClose={handleCloseModal} onUserAdded={handleUserAdded} />
       )}
       {isModalOpen && modalType === "group" && (
-        <GroupModal onClose={handleCloseModal} />
+        <GroupModal
+          onClose={handleCloseModal}
+          onGroupAdded={handleGroupAdded}
+        />
       )}
     </>
   );
