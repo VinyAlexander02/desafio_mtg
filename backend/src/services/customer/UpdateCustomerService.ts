@@ -17,7 +17,7 @@ class UpdateCustomerService {
     status,
   }: UpdateCustomerServiceProps) {
     if (!id) {
-      throw new Error("ID do cliente é obrigatório");
+      throw new Error("ID do usuário é obrigatório");
     }
 
     const customerExists = await prismaClient.customer.findUnique({

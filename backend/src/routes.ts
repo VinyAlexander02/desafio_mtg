@@ -11,6 +11,7 @@ import { CreateGroupController } from "./controllers/groups/CreateGroupControlle
 import { ListGroupController } from "./controllers/groups/ListGroupController";
 import { DeleteGroupController } from "./controllers/groups/DeleteGroupController";
 import { UpdateCustomerController } from "./controllers/customer/UpdateCustomerController";
+import { UpdateGroupController } from "./controllers/groups/UpdateGroupController";
 
 export async function routes(
   fastify: FastifyInstance,
@@ -55,6 +56,13 @@ export async function routes(
     "/group",
     async (request: FastifyRequest, replay: FastifyReply) => {
       return new ListGroupController().handle(request, replay);
+    }
+  );
+
+  fastify.put(
+    "/group/:id",
+    async (request: FastifyRequest, replay: FastifyReply) => {
+      return new UpdateGroupController().handle(request, replay);
     }
   );
 
