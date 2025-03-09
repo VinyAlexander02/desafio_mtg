@@ -3,11 +3,12 @@ import { CreateCustomerService } from "../../services/customer/CreateCustomerSer
 
 class CreateCustomerController {
   async handle(request: FastifyRequest, replay: FastifyReply) {
-    const { name, email, password, status } = request.body as {
+    const { name, email, password, status, groupIds } = request.body as {
       name: string;
       email: string;
       password: string;
       status: boolean;
+      groupIds: string[];
     };
 
     const createCustomerService = new CreateCustomerService();
@@ -17,6 +18,7 @@ class CreateCustomerController {
       email,
       password,
       status,
+      groupIds,
     });
 
     replay.send(customer);

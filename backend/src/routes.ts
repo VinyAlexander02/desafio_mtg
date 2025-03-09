@@ -4,7 +4,7 @@ import {
   FastifyRequest,
   FastifyReply,
 } from "fastify";
-import { CreateCustomerController } from "./controllers/customer/createCustomerController";
+import { CreateCustomerController } from "./controllers/customer/CreateCustomerController";
 import { ListCustomerController } from "./controllers/customer/ListCustomerController";
 import { DeleteCustomerController } from "./controllers/customer/DeleteCustomerController";
 import { CreateGroupController } from "./controllers/groups/CreateGroupController";

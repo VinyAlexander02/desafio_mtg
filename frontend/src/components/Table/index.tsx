@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../Button";
 import UserModal from "../UserModal";
 import GroupModal from "../GroupModal";
+import { api } from "../../services/api";
 
 const StyledTable = styled.table`
   width: 90%;
@@ -64,66 +65,44 @@ const TdButton = styled.div`
   justify-content: space-around;
 `;
 
-interface User {
-  id: number;
+interface Customer {
+  id: string;
   name: string;
   email: string;
-  senha: string;
+  password: string;
   status: string;
   groups: string[];
 }
 
 interface Group {
-  id: number;
+  id: string;
   name: string;
   description: string;
-  responsible: string;
+  ownerId: string;
 }
 
 export default function UserGroupManagement() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: 1,
-      name: "Alice",
-      email: "alice@example.com",
-      senha: "********",
-      status: "Ativo",
-      groups: ["Admin"],
-    },
-    {
-      id: 2,
-      name: "Bob",
-      email: "bob@example.com",
-      senha: "********",
-      status: "Inativo",
-      groups: ["Desenvolvimento", "Dados"],
-    },
-  ]);
-
-  const [groups, setGroups] = useState<Group[]>([
-    {
-      id: 1,
-      name: "Admin",
-      description: "Administrador",
-      responsible: "Alice",
-    },
-    {
-      id: 2,
-      name: "Desenvolvimento",
-      description: "Desenvolvimento",
-      responsible: "Bob",
-    },
-    {
-      id: 3,
-      name: "Dados",
-      description: "DBA",
-      responsible: "Bob",
-    },
-  ]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
 
   const [filterGroup, setFilterGroup] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"user" | "group" | null>(null);
+
+  useEffect(() => {
+    loadCustomers();
+    loadGroups();
+  }, []);
+
+  async function loadCustomers() {
+    const response = await api.get("/customer");
+    setCustomers(response.data);
+  }
+
+  async function loadGroups() {
+    const response = await api.get("/group");
+    setGroups(response.data);
+  }
 
   const handleOpenUserModal = () => {
     setIsModalOpen(true);
@@ -141,8 +120,8 @@ export default function UserGroupManagement() {
   };
 
   const filteredUsers = filterGroup
-    ? users.filter((user) => user.groups.includes(filterGroup))
-    : users;
+    ? customers.filter((customer) => customer.groups.includes(filterGroup))
+    : customers;
 
   return (
     <>
@@ -171,13 +150,22 @@ export default function UserGroupManagement() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id}>
-                <Td>{user.name}</Td>
-                <Td>{user.email}</Td>
-                <Td>{user.senha}</Td>
-                <Td>{user.status}</Td>
-                <Td>{user.groups.join(", ")}</Td>
+            {filteredUsers.map((customer) => (
+              <tr key={customer.id}>
+                <Td>{customer.name}</Td>
+                <Td>{customer.email}</Td>
+                <Td>{customer.password}</Td>
+                <Td>{customer.status ? "ATIVO" : "INATIVO"}</Td>
+                <Td>
+                  {Array.isArray(customer.groups) && customer.groups.length > 0
+                    ? customer.groups
+                        .map((groupId) => {
+                          const group = groups.find((g) => g.id === groupId);
+                          return group ? group.name : "Grupo não encontrado"; // Aqui a lógica deve funcionar corretamente
+                        })
+                        .join(", ")
+                    : "Nenhum grupo associado"}
+                </Td>
                 <Td>
                   <TdButton>
                     <Button>Editar</Button>
@@ -208,7 +196,19 @@ export default function UserGroupManagement() {
               <tr key={group.id}>
                 <Td>{group.name}</Td>
                 <Td>{group.description}</Td>
-                <Td>{group.responsible}</Td>
+                <Td>
+                  {group.ownerId
+                    ? (() => {
+                        const customer = customers.find(
+                          (c) => c.id === group.ownerId
+                        );
+                        return customer
+                          ? customer.name
+                          : "Dono do grupo não encontrado";
+                      })()
+                    : "Nenhum dono associado"}
+                </Td>
+
                 <Td>
                   <TdButton>
                     <Button>Editar</Button>
