@@ -15,10 +15,23 @@ model Customer {
   status Boolean
   created_at DateTime? @default(now())
   updted_at DateTime? @default(now())
+  Groups Groups[]
 
   @@map("customers")
 }
 
+model Groups {
+  id String @id @default(uuid()) @map("_id") 
+  name String
+  description String
+  ownerId String
+  owner Customer @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  created_at DateTime? @default(now())
+  updted_at DateTime? @default(now())
+
+  @@map("groups")
+}
+
 //npx prisma migrate dev --name create_customer_table
 
-// npx prisma migrate deploy - pega todas as migrações que já haviam sido criadas
+// npx prisma migrate deploy - pega todas as migrações que já haviam sido criadas, caso a tabela foi deletada

@@ -4,25 +4,22 @@ import {
   FastifyRequest,
   FastifyReply,
 } from "fastify";
-import { createCustomerController } from "./controllers/createCustomerController";
-import { ListCustomerController } from "./controllers/ListCustomerController";
-import { DeleteCustomerController } from "./controllers/DeleteCustomerController";
+import { CreateCustomerController } from "./controllers/customer/createCustomerController";
+import { ListCustomerController } from "./controllers/customer/ListCustomerController";
+import { DeleteCustomerController } from "./controllers/customer/DeleteCustomerController";
+import { CreateGroupController } from "./controllers/groups/CreateGroupController";
+import { ListGroupController } from "./controllers/groups/ListGroupController";
+import { DeleteGroupController } from "./controllers/groups/DeleteGroupController";
+import { UpdateCustomerController } from "./controllers/customer/UpdateCustomerController";
 
 export async function routes(
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) {
-  fastify.get(
-    "/teste",
-    async (request: FastifyRequest, replay: FastifyReply) => {
-      return { ok: true };
-    }
-  );
-
   fastify.post(
     "/customer",
     async (request: FastifyRequest, replay: FastifyReply) => {
-      return new createCustomerController().handle(request, replay);
+      return new CreateCustomerController().handle(request, replay);
     }
   );
 
@@ -33,10 +30,38 @@ export async function routes(
     }
   );
 
+  fastify.put(
+    "/customer/:id",
+    async (request: FastifyRequest, replay: FastifyReply) => {
+      return new UpdateCustomerController().handle(request, replay);
+    }
+  );
+
   fastify.delete(
     "/customer",
     async (request: FastifyRequest, replay: FastifyReply) => {
       return new DeleteCustomerController().handle(request, replay);
+    }
+  );
+
+  fastify.post(
+    "/group",
+    async (request: FastifyRequest, replay: FastifyReply) => {
+      return new CreateGroupController().handle(request, replay);
+    }
+  );
+
+  fastify.get(
+    "/group",
+    async (request: FastifyRequest, replay: FastifyReply) => {
+      return new ListGroupController().handle(request, replay);
+    }
+  );
+
+  fastify.delete(
+    "/group",
+    async (request: FastifyRequest, replay: FastifyReply) => {
+      return new DeleteGroupController().handle(request, replay);
     }
   );
 }

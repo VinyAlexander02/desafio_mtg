@@ -1,4 +1,4 @@
-import prismaClient from "../prisma";
+import prismaClient from "../../prisma";
 
 interface createCustomerServiceProps {
   name: string;
@@ -11,6 +11,16 @@ class CreateCustomerService {
   async execute({ name, email, password, status }: createCustomerServiceProps) {
     if (!name || !email || !password || !status) {
       throw new Error("Preencha todos os campos");
+    }
+
+    const emailExists = await prismaClient.customer.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (emailExists) {
+      throw new Error("Email já cadastrado");
     }
 
     const customer = await prismaClient.customer.create({

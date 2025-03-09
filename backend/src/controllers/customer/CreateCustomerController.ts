@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { CreateCustomerService } from "../services/CreateCustomerService";
+import { CreateCustomerService } from "../../services/customer/CreateCustomerService";
 
-class createCustomerController {
+class CreateCustomerController {
   async handle(request: FastifyRequest, replay: FastifyReply) {
     const { name, email, password, status } = request.body as {
       name: string;
@@ -10,9 +10,9 @@ class createCustomerController {
       status: boolean;
     };
 
-    const customerService = new CreateCustomerService();
+    const createCustomerService = new CreateCustomerService();
 
-    const customer = await customerService.execute({
+    const customer = await createCustomerService.execute({
       name,
       email,
       password,
@@ -23,4 +23,4 @@ class createCustomerController {
   }
 }
 
-export { createCustomerController };
+export { CreateCustomerController };
