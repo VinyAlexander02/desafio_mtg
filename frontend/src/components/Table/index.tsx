@@ -4,7 +4,7 @@ import Button from "../Button";
 import UserModal from "../UserModal";
 import GroupModal from "../GroupModal";
 import { api } from "../../services/api";
-import { group } from "console";
+import Swal from "sweetalert2";
 
 const StyledTable = styled.table`
   width: 90%;
@@ -85,7 +85,6 @@ interface Group {
 export default function UserGroupManagement() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
-
   const [filterGroup, setFilterGroup] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"user" | "group" | null>(null);
@@ -97,7 +96,6 @@ export default function UserGroupManagement() {
 
   async function loadCustomers() {
     const response = await api.get("/customer");
-
     setCustomers(response.data);
   }
 
@@ -120,6 +118,11 @@ export default function UserGroupManagement() {
     setIsModalOpen(true);
     setModalType("group");
   };
+
+  const handleUserAdded = () => {
+    loadCustomers();
+  };
+
   const filteredUsers = filterGroup
     ? customers.filter((customer) => {
         return (
@@ -128,6 +131,22 @@ export default function UserGroupManagement() {
         );
       })
     : customers;
+
+  async function handleDelete(id: string) {
+    try {
+      await api.delete(`/customer?id=${id}`);
+      Swal.fire({
+        title: "Usuário deletado com sucesso!",
+        icon: "success",
+        draggable: true,
+      });
+    } catch (error) {
+      console.log("Erro ao deletar", error);
+    }
+
+    const allCustomers = customers.filter((customer) => customer.id !== id);
+    setCustomers(allCustomers);
+  }
 
   return (
     <>
@@ -169,14 +188,16 @@ export default function UserGroupManagement() {
                 <Td>********</Td> {/* Oculta a senha */}
                 <Td>{customer.status ? "ATIVO" : "INATIVO"}</Td>
                 <Td>
-                  {Array.isArray(customer.Groups) && customer.Groups.length > 0 // Alterado para customer.Groups
-                    ? customer.Groups.map((group) => group.name).join(", ") // Alterado para customer.Groups
+                  {Array.isArray(customer.Groups) && customer.Groups.length > 0
+                    ? customer.Groups.map((group) => group.name).join(", ")
                     : "Nenhum grupo cadastrado"}
                 </Td>
                 <Td>
                   <TdButton>
                     <Button>Editar</Button>
-                    <DeleteButton>Excluir</DeleteButton>
+                    <DeleteButton onClick={() => handleDelete(customer.id)}>
+                      Excluir
+                    </DeleteButton>
                   </TdButton>
                 </Td>
               </tr>
@@ -228,7 +249,7 @@ export default function UserGroupManagement() {
         </Table>
       </StyledTable>
       {isModalOpen && modalType === "user" && (
-        <UserModal onClose={handleCloseModal} />
+        <UserModal onClose={handleCloseModal} onUserAdded={handleUserAdded} /> // Adicione a prop onUserAdded aqui
       )}
       {isModalOpen && modalType === "group" && (
         <GroupModal onClose={handleCloseModal} />

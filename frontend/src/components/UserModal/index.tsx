@@ -1,9 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, FormEvent } from "react";
 import styled from "styled-components";
 import Button from "../Button";
 import InputText from "../Input";
 import UserRoleSelect from "../UserSelect";
 import InputSelect from "../InputSelect";
+import { api } from "../../services/api";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const ModalContainer = styled.div`
   position: fixed;
@@ -48,9 +51,13 @@ const CloseButton = styled(Button)`
 
 interface ModalProps {
   onClose: () => void;
+  onUserAdded: () => void; // Nova prop para atualizar a lista
 }
 
-export default function UserModal({ onClose }: Readonly<ModalProps>) {
+export default function UserModal({
+  onClose,
+  onUserAdded,
+}: Readonly<ModalProps>) {
   const [completName, setCompletName] = useState("");
   const [emailUser, setEmailUser] = useState("");
   const [passwordCreateUser, setPasswordCreateUser] = useState("");
@@ -62,16 +69,65 @@ export default function UserModal({ onClose }: Readonly<ModalProps>) {
   const statusRef = useRef<HTMLSelectElement | null>(null);
   const groupRef = useRef<HTMLSelectElement | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Nome:", completName);
-    console.log("Email:", emailUser);
-    console.log("Senha:", passwordCreateUser);
-    console.log("Status:", status);
-  };
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
 
-  const statusValue =
-    status === true ? "Ativo" : status === false ? "Inativo" : "";
+    if (
+      !nameRef.current?.value ||
+      !emailRef.current?.value ||
+      !passwordRef.current?.value ||
+      !statusRef.current?.value ||
+      groupRef.current?.value === undefined
+    ) {
+      alert("Todos os campos são obrigatórios!");
+      return;
+    }
+
+    const groupIdValue = groupRef.current.value.trim();
+
+    const payload = {
+      name: nameRef.current.value.trim(),
+      email: emailRef.current.value.trim(),
+      password: passwordRef.current.value.trim(),
+      status: status === true,
+      groupIds: groupIdValue ? [groupIdValue] : [],
+    };
+
+    console.log("Enviando payload:", JSON.stringify(payload, null, 2));
+
+    try {
+      const response = await api.post("/customer", payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      console.log("Resposta da API:", response.data);
+      Swal.fire({
+        title: "Usuário Cadastrado com sucesso!",
+        icon: "success",
+        draggable: true,
+      });
+
+      onUserAdded();
+
+      setCompletName("");
+      setEmailUser("");
+      setPasswordCreateUser("");
+      setStatus(undefined);
+      if (statusRef.current) statusRef.current.value = "";
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error("Erro da API:", error.response?.data);
+        alert(`Erro da API: ${JSON.stringify(error.response?.data, null, 2)}`);
+      } else if (error instanceof Error) {
+        console.error("Erro inesperado:", error.message);
+        alert(`Erro inesperado: ${error.message}`);
+      }
+    }
+  }
+
+  const statusValue = status === true ? "Ativo" : "Inativo";
 
   return (
     <ModalContainer>
@@ -92,7 +148,7 @@ export default function UserModal({ onClose }: Readonly<ModalProps>) {
             placeholder="Digite o seu email ..."
             onChange={setEmailUser}
             label="Email"
-            ref={emailRef} // Passando a referência
+            ref={emailRef}
           />
           <InputText
             type="password"
@@ -100,7 +156,7 @@ export default function UserModal({ onClose }: Readonly<ModalProps>) {
             placeholder="Digite a sua senha ..."
             onChange={setPasswordCreateUser}
             label="Senha"
-            ref={passwordRef} // Passando a referência
+            ref={passwordRef}
           />
           <InputSelect
             label="Status"
@@ -114,10 +170,9 @@ export default function UserModal({ onClose }: Readonly<ModalProps>) {
               { value: "Ativo", label: "Ativo" },
               { value: "Inativo", label: "Inativo" },
             ]}
-            ref={statusRef} // Passando a referência, se aplicável
+            ref={statusRef}
           />
-          <UserRoleSelect ref={groupRef} />{" "}
-          {/* Adicionando referência ao UserRoleSelect, se aplicável */}
+          <UserRoleSelect ref={groupRef} />
           <Button type="submit">Cadastrar</Button>
           <CloseButton onClick={onClose}>Fechar</CloseButton>
         </Forms>

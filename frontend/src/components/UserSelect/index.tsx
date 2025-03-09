@@ -52,7 +52,7 @@ const UserRoleSelect = forwardRef<HTMLSelectElement, {}>((_, ref) => {
       <Select ref={ref}>
         <option value="">Selecione um grupo</option>
         {groups.map((group) => (
-          <option key={group.id} value={group.name}>
+          <option key={group.id} value={group.id}>
             {group.name}
           </option>
         ))}
