@@ -52,9 +52,26 @@ const CloseButton = styled(Button)`
 interface ModalProps {
   onClose: () => void;
   onUserAdded: () => void;
+  customer?: Customer;
 }
 
-export default function UserModal({
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  password?: string; // A senha pode ser opcional
+  status: boolean;
+  Groups: Group[];
+}
+
+interface Group {
+  id: string;
+  name: string;
+  description: string;
+  ownerId: string;
+}
+
+export default function CustomerModal({
   onClose,
   onUserAdded,
 }: Readonly<ModalProps>) {

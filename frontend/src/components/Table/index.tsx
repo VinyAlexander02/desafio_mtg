@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Button from "../Button";
-import UserModal from "../UserModal";
+import CustomerModal from "../CustomerModal";
 import GroupModal from "../GroupModal";
 import { api } from "../../services/api";
 import Swal from "sweetalert2";
@@ -63,7 +63,9 @@ const Td = styled.td`
 
 const TdButton = styled.div`
   display: flex;
+  align-items: center;
   justify-content: space-around;
+  max-width: 50px;
 `;
 
 interface Customer {
@@ -87,7 +89,7 @@ export default function UserGroupManagement() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [filterGroup, setFilterGroup] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState<"user" | "group" | null>(null);
+  const [modalType, setModalType] = useState<"customer" | "group" | null>(null);
 
   useEffect(() => {
     loadCustomers();
@@ -106,7 +108,7 @@ export default function UserGroupManagement() {
 
   const handleOpenUserModal = () => {
     setIsModalOpen(true);
-    setModalType("user");
+    setModalType("customer");
   };
 
   const handleCloseModal = () => {
@@ -272,8 +274,11 @@ export default function UserGroupManagement() {
           </tbody>
         </Table>
       </StyledTable>
-      {isModalOpen && modalType === "user" && (
-        <UserModal onClose={handleCloseModal} onUserAdded={handleUserAdded} />
+      {isModalOpen && modalType === "customer" && (
+        <CustomerModal
+          onClose={handleCloseModal}
+          onUserAdded={handleUserAdded}
+        />
       )}
       {isModalOpen && modalType === "group" && (
         <GroupModal
