@@ -64,8 +64,8 @@ const Td = styled.td`
 const TdButton = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  max-width: 50px;
+  justify-content: space-evenly;
+  max-width: 100%;
 `;
 
 interface Customer {
@@ -90,11 +90,15 @@ export default function UserGroupManagement() {
   const [filterGroup, setFilterGroup] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"customer" | "group" | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     loadCustomers();
     loadGroups();
-  }, []);
+  }, [refresh]);
 
   async function loadCustomers() {
     const response = await api.get("/customer");
@@ -121,12 +125,20 @@ export default function UserGroupManagement() {
     setModalType("group");
   };
 
-  const handleUserAdded = () => {
+  const handleCustomerAdded = () => {
+    console.log("Usuário adicionado, recarregando lista ...");
     loadCustomers();
+    setRefresh((prev) => prev + 1);
   };
 
   const handleGroupAdded = () => {
     loadGroups();
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setIsModalOpen(true);
+    setModalType("customer");
   };
 
   const filteredUsers = filterGroup
@@ -216,7 +228,9 @@ export default function UserGroupManagement() {
                 </Td>
                 <Td>
                   <TdButton>
-                    <Button>Editar</Button>
+                    <Button onClick={() => handleEditCustomer(customer)}>
+                      Editar
+                    </Button>
                     <DeleteButton
                       onClick={() => handleDeleteCustomer(customer.id)}
                     >
@@ -277,13 +291,20 @@ export default function UserGroupManagement() {
       {isModalOpen && modalType === "customer" && (
         <CustomerModal
           onClose={handleCloseModal}
-          onUserAdded={handleUserAdded}
+          onCustomerAdded={handleCustomerAdded}
         />
       )}
       {isModalOpen && modalType === "group" && (
         <GroupModal
           onClose={handleCloseModal}
           onGroupAdded={handleGroupAdded}
+        />
+      )}
+      {isModalOpen && modalType === "customer" && (
+        <CustomerModal
+          onClose={handleCloseModal}
+          onCustomerAdded={handleCustomerAdded}
+          customer={selectedCustomer ?? undefined}
         />
       )}
     </>

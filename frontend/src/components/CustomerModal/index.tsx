@@ -5,7 +5,6 @@ import InputText from "../Input";
 import UserRoleSelect from "../UserSelect";
 import InputSelect from "../InputSelect";
 import { api } from "../../services/api";
-import axios from "axios";
 import Swal from "sweetalert2";
 
 const ModalContainer = styled.div`
@@ -51,7 +50,7 @@ const CloseButton = styled(Button)`
 
 interface ModalProps {
   onClose: () => void;
-  onUserAdded: () => void;
+  onCustomerAdded: () => void;
   customer?: Customer;
 }
 
@@ -73,12 +72,13 @@ interface Group {
 
 export default function CustomerModal({
   onClose,
-  onUserAdded,
+  onCustomerAdded,
+  customer,
 }: Readonly<ModalProps>) {
-  const [completName, setCompletName] = useState("");
-  const [emailUser, setEmailUser] = useState("");
+  const [completName, setCompletName] = useState(customer?.name ?? "");
+  const [emailUser, setEmailUser] = useState(customer?.email ?? "");
   const [passwordCreateUser, setPasswordCreateUser] = useState("");
-  const [status, setStatus] = useState<boolean | undefined>(undefined);
+  const [status, setStatus] = useState<boolean | undefined>(customer?.status);
 
   const nameRef = useRef<HTMLInputElement | null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
@@ -115,34 +115,18 @@ export default function CustomerModal({
     };
 
     try {
-      const response = await api.post("/customer", payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      console.log("Resposta da API:", response.data);
-      Swal.fire({
-        title: "Usuário Cadastrado com sucesso!",
-        icon: "success",
-        draggable: true,
-      });
-
-      onUserAdded();
-
-      setCompletName("");
-      setEmailUser("");
-      setPasswordCreateUser("");
-      setStatus(undefined);
-      if (statusRef.current) statusRef.current.value = "";
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Erro da API:", error.response?.data);
-        alert(`Erro da API: ${JSON.stringify(error.response?.data, null, 2)}`);
-      } else if (error instanceof Error) {
-        console.error("Erro inesperado:", error.message);
-        alert(`Erro inesperado: ${error.message}`);
+      if (customer) {
+        await api.put(`/customer/${customer.id}`, payload);
+        Swal.fire("Usuário atualizado com sucesso!", "", "success");
+      } else {
+        await api.post("/customer", payload);
+        Swal.fire("Usuário cadastrado com sucesso!", "", "success");
       }
+
+      onCustomerAdded();
+      onClose();
+    } catch (error) {
+      console.error("Erro ao salvar usuário", error);
     }
   }
 
