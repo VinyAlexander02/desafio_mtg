@@ -169,7 +169,7 @@ export default function UserGroupManagement() {
         icon: "success",
         draggable: true,
       });
-      await loadCustomers(); // Atualiza a lista após exclusão
+      await loadCustomers();
     } catch (error) {
       console.log("Erro ao deletar", error);
     }
@@ -183,7 +183,7 @@ export default function UserGroupManagement() {
         icon: "success",
         draggable: true,
       });
-      await loadGroups(); // Atualiza a lista após exclusão
+      await loadGroups();
     } catch (error) {
       console.log("Erro ao deletar", error);
     }

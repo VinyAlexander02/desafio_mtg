@@ -58,7 +58,7 @@ interface Customer {
   id: string;
   name: string;
   email: string;
-  password?: string; // A senha pode ser opcional
+  password?: string;
   status: boolean;
   Groups: Group[];
 }

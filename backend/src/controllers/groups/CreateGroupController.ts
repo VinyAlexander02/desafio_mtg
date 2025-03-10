@@ -6,7 +6,7 @@ class CreateGroupController {
     const { name, description, ownerId } = request.body as {
       name: string;
       description: string;
-      ownerId: string; // ownerId deve ser uma string
+      ownerId: string;
     };
 
     const createGroupService = new CreateGroupService();
@@ -15,10 +15,9 @@ class CreateGroupController {
       const group = await createGroupService.execute({
         name,
         description,
-        ownerId, // Passando ownerId como string
+        ownerId,
       });
 
-      // Retornar o grupo criado com status 201 (Criado)
       reply.code(201).send(group);
     } catch (error: unknown) {
       console.error("Erro ao criar grupo:", error);

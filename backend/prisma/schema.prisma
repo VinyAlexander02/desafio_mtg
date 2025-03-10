@@ -32,6 +32,3 @@ model Groups {
   @@map("groups")
 }
 
-//npx prisma migrate dev --name create_customer_table
-
-// npx prisma migrate deploy - pega todas as migrações que já haviam sido criadas, caso a tabela foi deletada
