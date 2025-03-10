@@ -169,8 +169,16 @@ export default function UserGroupManagement() {
         icon: "success",
         draggable: true,
       });
-      await loadCustomers();
+      setCustomers((prevCustomers) =>
+        prevCustomers.filter((customer) => customer.id !== id)
+      );
     } catch (error) {
+      Swal.fire({
+        title: "Erro ao deletar o usuário.",
+        text: "Por favor, tente novamente.",
+        icon: "error",
+        draggable: true,
+      });
       console.log("Erro ao deletar", error);
     }
   }
@@ -191,89 +199,93 @@ export default function UserGroupManagement() {
 
   return (
     <>
-      <StyledTable>
-        <H2>Gerenciamento de Usuários</H2>
-        <Div>
-          <Select onChange={(e) => setFilterGroup(e.target.value)}>
-            <option value="">Todos os Grupos</option>
-            {groups.map((group) => (
-              <option key={group.id} value={group.name}>
-                {group.name}
-              </option>
-            ))}
-          </Select>
-          <Button onClick={handleOpenUserModal}>Adicionar Usuário</Button>
-        </Div>
-        <Table>
-          <thead>
-            <tr>
-              <Th>Nome</Th>
-              <Th>Email</Th>
-              <Th>Status</Th>
-              <Th>Grupos</Th>
-              <Th>Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredUsers.map((customer) => (
-              <tr key={customer.id}>
-                <Td>{customer.name}</Td>
-                <Td>{customer.email}</Td>
-                <Td>{customer.status ? "ATIVO" : "INATIVO"}</Td>
-                <Td>
-                  {customer.Groups.map((group) => group.name).join(", ") ||
-                    "Nenhum"}
-                </Td>
-                <TdButton>
-                  <Button onClick={() => handleEditCustomer(customer)}>
-                    Editar
-                  </Button>
-                  <DeleteButton
-                    onClick={() => handleDeleteCustomer(customer.id)}
-                  >
-                    Excluir
-                  </DeleteButton>
-                </TdButton>
+      <div data-testid="table-content">
+        <StyledTable>
+          <H2>Gerenciamento de Usuários</H2>
+          <Div>
+            <Select onChange={(e) => setFilterGroup(e.target.value)}>
+              <option value="">Todos os Grupos</option>
+              {groups.map((group) => (
+                <option key={group.id} value={group.name}>
+                  {group.name}
+                </option>
+              ))}
+            </Select>
+            <Button onClick={handleOpenUserModal}>Adicionar Usuário</Button>
+          </Div>
+          <Table>
+            <thead>
+              <tr>
+                <Th>Nome</Th>
+                <Th>Email</Th>
+                <Th>Status</Th>
+                <Th>Grupos</Th>
+                <Th>Ações</Th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </StyledTable>
+            </thead>
+            <tbody>
+              {filteredUsers.map((customer) => (
+                <tr key={customer.id}>
+                  <Td>{customer.name}</Td>
+                  <Td>{customer.email}</Td>
+                  <Td>{customer.status ? "ATIVO" : "INATIVO"}</Td>
+                  <Td>
+                    {customer.Groups.map((group) => group.name).join(", ") ||
+                      "Nenhum"}
+                  </Td>
+                  <TdButton>
+                    <Button onClick={() => handleEditCustomer(customer)}>
+                      Editar
+                    </Button>
+                    <DeleteButton
+                      onClick={() => handleDeleteCustomer(customer.id)}
+                    >
+                      Excluir
+                    </DeleteButton>
+                  </TdButton>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </StyledTable>
 
-      <StyledTable>
-        <H2>Gerenciamento de Grupos</H2>
-        <Div>
-          <Button onClick={handleOpenGroupModal}>Adicionar Grupo</Button>
-        </Div>
-        <Table>
-          <thead>
-            <tr>
-              <Th>Nome</Th>
-              <Th>Descrição</Th>
-              <Th>Responsável</Th>
-              <Th>Ações</Th>
-            </tr>
-          </thead>
-          <tbody>
-            {groups.map((group) => (
-              <tr key={group.id}>
-                <Td>{group.name}</Td>
-                <Td>{group.description}</Td>
-                <Td>
-                  {customers.find((c) => c.id === group.ownerId)?.name ??
-                    "Não encontrado"}
-                </Td>
-                <TdButton>
-                  <Button onClick={() => handleEditGroup(group)}>Editar</Button>
-                  <DeleteButton onClick={() => handleDeleteGroup(group.id)}>
-                    Excluir
-                  </DeleteButton>
-                </TdButton>
+        <StyledTable>
+          <H2>Gerenciamento de Grupos</H2>
+          <Div>
+            <Button onClick={handleOpenGroupModal}>Adicionar Grupo</Button>
+          </Div>
+          <Table>
+            <thead>
+              <tr>
+                <Th>Nome</Th>
+                <Th>Descrição</Th>
+                <Th>Responsável</Th>
+                <Th>Ações</Th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </StyledTable>
+            </thead>
+            <tbody>
+              {groups.map((group) => (
+                <tr key={group.id}>
+                  <Td>{group.name}</Td>
+                  <Td>{group.description}</Td>
+                  <Td>
+                    {customers.find((c) => c.id === group.ownerId)?.name ??
+                      "Não encontrado"}
+                  </Td>
+                  <TdButton>
+                    <Button onClick={() => handleEditGroup(group)}>
+                      Editar
+                    </Button>
+                    <DeleteButton onClick={() => handleDeleteGroup(group.id)}>
+                      Excluir
+                    </DeleteButton>
+                  </TdButton>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </StyledTable>
+      </div>
 
       {isModalOpen && modalType === "customer" && (
         <CustomerModal
