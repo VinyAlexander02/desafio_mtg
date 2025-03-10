@@ -19,7 +19,6 @@ const StyledTable = styled.table`
 
 const DeleteButton = styled(Button)`
   background-color: #ff0000;
-
   &:hover {
     background-color: #f03939;
     transition: 1.5s;
@@ -93,6 +92,7 @@ export default function UserGroupManagement() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
@@ -101,18 +101,29 @@ export default function UserGroupManagement() {
   }, [refresh]);
 
   async function loadCustomers() {
+    console.log("🔄 Carregando clientes...");
     const response = await api.get("/customer");
+    console.log("📦 Clientes recebidos:", response.data);
     setCustomers(response.data);
   }
 
   async function loadGroups() {
+    console.log("🔄 Carregando grupos...");
     const response = await api.get("/group");
+    console.log("📦 Grupos recebidos:", response.data);
     setGroups(response.data);
   }
 
   const handleOpenUserModal = () => {
     setIsModalOpen(true);
     setModalType("customer");
+    setSelectedCustomer(null);
+  };
+
+  const handleOpenGroupModal = () => {
+    setIsModalOpen(true);
+    setModalType("group");
+    setSelectedGroup(null);
   };
 
   const handleCloseModal = () => {
@@ -120,19 +131,14 @@ export default function UserGroupManagement() {
     setModalType(null);
   };
 
-  const handleOpenGroupModal = () => {
-    setIsModalOpen(true);
-    setModalType("group");
-  };
-
-  const handleCustomerAdded = () => {
-    console.log("Usuário adicionado, recarregando lista ...");
-    loadCustomers();
+  const handleCustomerAdded = async () => {
+    await loadCustomers();
     setRefresh((prev) => prev + 1);
   };
 
-  const handleGroupAdded = () => {
-    loadGroups();
+  const handleGroupAdded = async () => {
+    await loadGroups();
+    setRefresh((prev) => prev + 1);
   };
 
   const handleEditCustomer = (customer: Customer) => {
@@ -141,13 +147,18 @@ export default function UserGroupManagement() {
     setModalType("customer");
   };
 
+  const handleEditGroup = (group: Group) => {
+    setSelectedGroup(group);
+    setIsModalOpen(true);
+    setModalType("group");
+  };
+
   const filteredUsers = filterGroup
-    ? customers.filter((customer) => {
-        return (
+    ? customers.filter(
+        (customer) =>
           Array.isArray(customer.Groups) &&
           customer.Groups.some((group) => group.name === filterGroup)
-        );
-      })
+      )
     : customers;
 
   async function handleDeleteCustomer(id: string) {
@@ -158,12 +169,10 @@ export default function UserGroupManagement() {
         icon: "success",
         draggable: true,
       });
+      await loadCustomers(); // Atualiza a lista após exclusão
     } catch (error) {
       console.log("Erro ao deletar", error);
     }
-
-    const allCustomers = customers.filter((customer) => customer.id !== id);
-    setCustomers(allCustomers);
   }
 
   async function handleDeleteGroup(id: string) {
@@ -174,12 +183,10 @@ export default function UserGroupManagement() {
         icon: "success",
         draggable: true,
       });
+      await loadGroups(); // Atualiza a lista após exclusão
     } catch (error) {
       console.log("Erro ao deletar", error);
     }
-
-    const allGroups = groups.filter((group) => group.id !== id);
-    setGroups(allGroups);
   }
 
   return (
@@ -187,12 +194,7 @@ export default function UserGroupManagement() {
       <StyledTable>
         <H2>Gerenciamento de Usuários</H2>
         <Div>
-          <Select
-            onChange={(e) => {
-              const selectedGroup = e.target.value;
-              setFilterGroup(selectedGroup);
-            }}
-          >
+          <Select onChange={(e) => setFilterGroup(e.target.value)}>
             <option value="">Todos os Grupos</option>
             {groups.map((group) => (
               <option key={group.id} value={group.name}>
@@ -200,7 +202,6 @@ export default function UserGroupManagement() {
               </option>
             ))}
           </Select>
-
           <Button onClick={handleOpenUserModal}>Adicionar Usuário</Button>
         </Div>
         <Table>
@@ -208,7 +209,6 @@ export default function UserGroupManagement() {
             <tr>
               <Th>Nome</Th>
               <Th>Email</Th>
-              <Th>Senha</Th>
               <Th>Status</Th>
               <Th>Grupos</Th>
               <Th>Ações</Th>
@@ -219,30 +219,27 @@ export default function UserGroupManagement() {
               <tr key={customer.id}>
                 <Td>{customer.name}</Td>
                 <Td>{customer.email}</Td>
-                <Td>********</Td> {/* Oculta a senha */}
                 <Td>{customer.status ? "ATIVO" : "INATIVO"}</Td>
                 <Td>
-                  {Array.isArray(customer.Groups) && customer.Groups.length > 0
-                    ? customer.Groups.map((group) => group.name).join(", ")
-                    : "Nenhum grupo cadastrado"}
+                  {customer.Groups.map((group) => group.name).join(", ") ||
+                    "Nenhum"}
                 </Td>
-                <Td>
-                  <TdButton>
-                    <Button onClick={() => handleEditCustomer(customer)}>
-                      Editar
-                    </Button>
-                    <DeleteButton
-                      onClick={() => handleDeleteCustomer(customer.id)}
-                    >
-                      Excluir
-                    </DeleteButton>
-                  </TdButton>
-                </Td>
+                <TdButton>
+                  <Button onClick={() => handleEditCustomer(customer)}>
+                    Editar
+                  </Button>
+                  <DeleteButton
+                    onClick={() => handleDeleteCustomer(customer.id)}
+                  >
+                    Excluir
+                  </DeleteButton>
+                </TdButton>
               </tr>
             ))}
           </tbody>
         </Table>
       </StyledTable>
+
       <StyledTable>
         <H2>Gerenciamento de Grupos</H2>
         <Div>
@@ -263,48 +260,33 @@ export default function UserGroupManagement() {
                 <Td>{group.name}</Td>
                 <Td>{group.description}</Td>
                 <Td>
-                  {group.ownerId
-                    ? (() => {
-                        const customer = customers.find(
-                          (c) => c.id === group.ownerId
-                        );
-                        return customer
-                          ? customer.name
-                          : "Dono do grupo não encontrado";
-                      })()
-                    : "Nenhum dono associado"}
+                  {customers.find((c) => c.id === group.ownerId)?.name ??
+                    "Não encontrado"}
                 </Td>
-
-                <Td>
-                  <TdButton>
-                    <Button>Editar</Button>
-                    <DeleteButton onClick={() => handleDeleteGroup(group.id)}>
-                      Excluir
-                    </DeleteButton>
-                  </TdButton>
-                </Td>
+                <TdButton>
+                  <Button onClick={() => handleEditGroup(group)}>Editar</Button>
+                  <DeleteButton onClick={() => handleDeleteGroup(group.id)}>
+                    Excluir
+                  </DeleteButton>
+                </TdButton>
               </tr>
             ))}
           </tbody>
         </Table>
       </StyledTable>
+
       {isModalOpen && modalType === "customer" && (
         <CustomerModal
           onClose={handleCloseModal}
           onCustomerAdded={handleCustomerAdded}
+          customer={selectedCustomer || undefined}
         />
       )}
       {isModalOpen && modalType === "group" && (
         <GroupModal
           onClose={handleCloseModal}
           onGroupAdded={handleGroupAdded}
-        />
-      )}
-      {isModalOpen && modalType === "customer" && (
-        <CustomerModal
-          onClose={handleCloseModal}
-          onCustomerAdded={handleCustomerAdded}
-          customer={selectedCustomer ?? undefined}
+          group={selectedGroup || undefined}
         />
       )}
     </>

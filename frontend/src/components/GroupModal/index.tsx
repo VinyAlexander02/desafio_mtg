@@ -5,7 +5,6 @@ import InputText from "../Input";
 import ListUser from "../ListUser";
 import Swal from "sweetalert2";
 import { api } from "../../services/api";
-import axios from "axios";
 
 const ModalContainer = styled.div`
   position: fixed;
@@ -48,17 +47,28 @@ const CloseButton = styled(Button)`
   }
 `;
 
+interface Group {
+  id: string;
+  name: string;
+  description: string;
+  ownerId: string;
+}
+
 interface ModalProps {
   onClose: () => void;
   onGroupAdded: () => void;
+  group?: Group;
 }
 
 export default function GroupModal({
   onClose,
   onGroupAdded,
+  group,
 }: Readonly<ModalProps>) {
-  const [groupName, setGroupName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [groupName, setGroupName] = useState<string>(group?.name ?? "");
+  const [description, setDescription] = useState<string>(
+    group?.description ?? ""
+  );
 
   const groupNameRef = useRef<HTMLInputElement | null>(null);
   const descriptionRef = useRef<HTMLInputElement | null>(null);
@@ -66,6 +76,19 @@ export default function GroupModal({
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+
+    if (
+      !groupNameRef.current?.value ||
+      !descriptionRef.current?.value ||
+      !responseGroupRef.current?.value
+    ) {
+      Swal.fire({
+        title: "Todos os campos são obrigatórios!",
+        icon: "error",
+        draggable: true,
+      });
+      return;
+    }
 
     const customerIdValue = responseGroupRef.current?.value.trim();
 
@@ -76,38 +99,26 @@ export default function GroupModal({
     };
 
     try {
-      const response = await api.post("/group", payload, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      console.log("Resposta da API:", response.data);
-      Swal.fire({
-        title: "Grupo cadastrado com sucesso!",
-        icon: "success",
-        draggable: true,
-      });
+      if (group) {
+        await api.put(`/group/${group.id}`, payload);
+        Swal.fire("Grupo atualizado com sucesso!", "", "success");
+      } else {
+        await api.post("/group", payload);
+        Swal.fire("Grupo cadastrado com sucesso!", "", "success");
+      }
 
       onGroupAdded();
-
-      setGroupName("");
-      setDescription("");
+      onClose();
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Erro da API:", error.response?.data);
-        alert(`Erro da API: ${JSON.stringify(error.response?.data, null, 2)}`);
-      } else if (error instanceof Error) {
-        console.error("Erro inesperado:", error.message);
-        alert(`Erro inesperado: ${error.message}`);
-      }
+      console.error("Erro ao salvar grupo", error);
+      Swal.fire("Erro ao salvar grupo", "Tente novamente.", "error");
     }
   }
 
   return (
     <ModalContainer>
       <ModalContent>
-        <H1>Criar novo grupo</H1>
+        <H1>{group ? "Editar Grupo" : "Criar Novo Grupo"}</H1>
         <Forms onSubmit={handleSubmit}>
           <InputText
             type="text"
@@ -126,7 +137,7 @@ export default function GroupModal({
             ref={descriptionRef}
           />
           <ListUser ref={responseGroupRef} />
-          <Button>Cadastrar</Button>
+          <Button type="submit">{group ? "Atualizar" : "Cadastrar"}</Button>
           <CloseButton onClick={onClose}>Fechar</CloseButton>
         </Forms>
       </ModalContent>
