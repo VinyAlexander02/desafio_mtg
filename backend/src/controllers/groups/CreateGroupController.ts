@@ -17,16 +17,10 @@ class CreateGroupController {
         description,
         ownerId,
       });
-
       reply.code(201).send(group);
-    } catch (error: unknown) {
-      console.error("Erro ao criar grupo:", error);
-
-      if (error instanceof Error) {
-        reply.code(400).send({ error: error.message });
-      } else {
-        reply.code(500).send({ error: "Erro inesperado" });
-      }
+    } catch (error) {
+      const errorMessage = (error as Error).message;
+      reply.status(400).send({ error: errorMessage });
     }
   }
 }

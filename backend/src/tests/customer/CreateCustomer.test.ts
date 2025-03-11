@@ -1,113 +1,79 @@
-import { CreateCustomerController } from "../../controllers/customer/CreateCustomerController";
-import { CreateCustomerService } from "../../services/customer/CreateCustomerService";
+import { ListCustomerController } from "../../controllers/customer/ListCustomerController";
+import { ListCustomerService } from "../../services/customer/ListCustomerService";
 
-jest.mock("../../services/customer/CreateCustomerService");
+jest.mock("../../services/customer/ListCustomerService");
 
-describe("Create Customer Controller", () => {
+describe("List Customer controller", () => {
   let mockService: jest.SpyInstance;
 
   beforeEach(() => {
-    mockService = jest.spyOn(CreateCustomerService.prototype, "execute");
+    mockService = jest.spyOn(ListCustomerService.prototype, "execute");
   });
 
   afterEach(() => {
     mockService.mockRestore();
   });
 
-  it("Should create customer successfully", async () => {
-    const uniqueEmail = `teste${Date.now()}@teste.com`;
-
-    const createCustomerMock = {
-      id: "123",
-      name: "teste",
-      email: uniqueEmail,
-      password: "123456",
-      status: true,
-      groupIds: [],
-    };
-
-    mockService.mockResolvedValue(createCustomerMock);
-
-    const request = {
-      body: {
-        name: "teste",
-        email: uniqueEmail,
-        password: "123456",
+  it("Should list all customers successfully", async () => {
+    const customersMock = [
+      {
+        id: "1",
+        name: "Cliente 1",
+        email: "cliente1@example.com",
         status: true,
-        groupIds: [],
       },
-    } as any;
+      {
+        id: "2",
+        name: "Cliente 2",
+        email: "cliente2@example.com",
+        status: false,
+      },
+    ];
 
+    mockService.mockResolvedValue(customersMock);
+
+    const request = {} as any;
     const reply = {
       send: jest.fn(),
     } as any;
 
-    const controller = new CreateCustomerController();
-    await controller.handle(request, reply);
+    const listController = new ListCustomerController();
+    await listController.handle(request, reply);
 
     expect(reply.send).toHaveBeenCalledTimes(1);
-    expect(reply.send).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: "teste",
-        email: uniqueEmail,
-        password: "123456",
-        status: true,
-        groupIds: [],
-      })
-    );
+    expect(reply.send).toHaveBeenCalledWith(customersMock);
   });
 
-  it("Should return a message stating that one or more groups do not exist", async () => {
-    mockService.mockRejectedValue(
-      new Error("Um ou mais grupos não existentes")
-    );
+  it("Should return empty list if no customer on list", async () => {
+    mockService.mockResolvedValue([]);
 
-    const request = {
-      body: {
-        name: "teste",
-        email: "teste@teste.com",
-        password: "123456",
-        status: true,
-        groupIds: ["101"],
-      },
-    } as any;
-
+    const request = {} as any;
     const reply = {
       send: jest.fn(),
     } as any;
 
-    const controller = new CreateCustomerController();
+    const listController = new ListCustomerController();
+    await listController.handle(request, reply);
 
-    await expect(controller.handle(request, reply)).rejects.toThrow(
-      "Um ou mais grupos não existentes"
-    );
-
-    expect(reply.send).not.toHaveBeenCalledTimes(1);
+    expect(reply.send).toHaveBeenCalledTimes(1);
+    expect(reply.send).toHaveBeenCalledWith([]);
   });
 
-  it("Should return error when email is already exists", async () => {
-    mockService.mockRejectedValue(new Error("Email já cadastrado"));
+  it("Should return an error message if an error occurs", async () => {
+    mockService.mockRejectedValue(new Error("Erro ao listar clientes"));
 
-    const request = {
-      body: {
-        name: "teste",
-        email: "teste@teste.com",
-        password: "123456",
-        status: true,
-        groupIds: [],
-      },
-    } as any;
-
+    const request = {} as any;
     const reply = {
+      code: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
-    const controller = new CreateCustomerController();
+    const listController = new ListCustomerController();
+    await listController.handle(request, reply);
 
-    await expect(controller.handle(request, reply)).rejects.toThrow(
-      "Email já cadastrado"
-    );
-
-    expect(reply.send).not.toHaveBeenCalled();
+    expect(reply.code).toHaveBeenCalledWith(500);
+    expect(reply.send).toHaveBeenCalledWith({
+      message: "Erro ao listar clientes",
+    });
   });
 });
