@@ -3,25 +3,33 @@ import { UpdateCustomerService } from "../../services/customer/UpdateCustomerSer
 
 class UpdateCustomerController {
   async handle(request: FastifyRequest, replay: FastifyReply) {
-    const { id } = request.params as { id: string };
-    const { name, email, password, status } = request.body as {
-      name: string;
-      email: string;
-      password: string;
-      status: boolean;
-    };
+    try {
+      const { id } = request.params as { id: string };
+      const { name, email, password, status } = request.body as {
+        name: string;
+        email: string;
+        password: string;
+        status: boolean;
+      };
 
-    const updateCustomerService = new UpdateCustomerService();
+      const updateCustomerService = new UpdateCustomerService();
 
-    const updateCustomer = updateCustomerService.execute({
-      id,
-      name,
-      email,
-      password,
-      status,
-    });
+      const updateCustomer = await updateCustomerService.execute({
+        id,
+        name,
+        email,
+        password,
+        status,
+      });
 
-    replay.send(updateCustomer);
+      replay.send(updateCustomer);
+    } catch (error) {
+      if (error instanceof Error) {
+        replay.send({ error: error.message });
+      } else {
+        replay.send({ error: "Erro desconhecido" });
+      }
+    }
   }
 }
 

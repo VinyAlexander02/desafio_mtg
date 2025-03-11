@@ -17,14 +17,16 @@ describe("Create Customer Controller", () => {
   it("Should create customer successfully", async () => {
     const uniqueEmail = `teste${Date.now()}@teste.com`;
 
-    mockService.mockResolvedValue({
+    const createCustomerMock = {
       id: "123",
       name: "teste",
       email: uniqueEmail,
       password: "123456",
       status: true,
       groupIds: [],
-    });
+    };
+
+    mockService.mockResolvedValue(createCustomerMock);
 
     const request = {
       body: {

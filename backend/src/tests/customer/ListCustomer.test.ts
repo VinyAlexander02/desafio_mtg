@@ -1,7 +1,5 @@
-import { mock } from "node:test";
 import { ListCustomerController } from "../../controllers/customer/ListCustomerController";
 import { ListCustomerService } from "../../services/customer/ListCustomerService";
-import exp from "constants";
 
 jest.mock("../../services/customer/ListCustomerService");
 

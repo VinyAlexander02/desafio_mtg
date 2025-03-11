@@ -3,7 +3,7 @@ import { DeleteCustomerService } from "../../services/customer/DeleteCustomerSer
 
 class DeleteCustomerController {
   async handle(request: FastifyRequest, reply: FastifyReply) {
-    const { id } = request.query as { id: string };
+    const { id } = request.params as { id: string };
     const deleteCustomerService = new DeleteCustomerService();
 
     try {
@@ -12,7 +12,7 @@ class DeleteCustomerController {
     } catch (error) {
       const errorMessage = (error as Error).message;
       console.error(error);
-      reply.status(400).send({ message: errorMessage });
+      reply.send({ message: errorMessage });
     }
   }
 }
