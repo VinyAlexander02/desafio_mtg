@@ -39,7 +39,7 @@
    - Na pasta frontend digite o comando: npm start
    - Na pasta do backend digite o comando: npm run dev
 
-O projeto irá ser executado na porta: http://localhost:3000
+O projeto irá ser executado na porta: http://localhost:3000 para o front end e na porta http://localhost:3333
 
 ## Para executar os teste:
 
