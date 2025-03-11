@@ -3,17 +3,21 @@ import { DeleteCustomerService } from "../../services/customer/DeleteCustomerSer
 
 class DeleteCustomerController {
   async handle(request: FastifyRequest, reply: FastifyReply) {
-    const { id } = request.params as { id: string };
+    const { id } = request.query as { id?: string };
+
+    if (!id) {
+      return reply.status(400).send({ message: "ID do cliente é obrigatório" });
+    }
+
     const deleteCustomerService = new DeleteCustomerService();
 
     try {
       const customer = await deleteCustomerService.execute({ id });
       reply.send(customer);
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Erro desconhecido";
+      const errorMessage = (error as Error).message;
       console.error(error);
-      reply.code(400).send({ message: errorMessage });
+      reply.status(400).send({ message: errorMessage });
     }
   }
 }

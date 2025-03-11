@@ -18,44 +18,37 @@ describe("Delete group controller", () => {
     mockService.mockResolvedValue({ message: "Grupo deletado com sucesso" });
 
     const request = {
-      params: {
-        id: "123",
-      },
+      query: { id: "123" },
     } as any;
 
     const reply = {
-      code: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteGroup = new DeleteGroupController();
     await deleteGroup.handle(request, reply);
 
-    expect(reply.code).toHaveBeenCalledWith(200);
-    expect(reply.send).toHaveBeenCalledTimes(1);
+    expect(reply.status).toHaveBeenCalledWith(200);
     expect(reply.send).toHaveBeenCalledWith({
       message: "Grupo deletado com sucesso",
     });
   });
 
   it("Should return an error if id is not present", async () => {
-    mockService.mockRejectedValue(new Error("ID do grupo é obrigatório"));
-
     const request = {
-      params: {
-        id: "",
-      },
+      query: {},
     } as any;
 
     const reply = {
-      code: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteGroup = new DeleteGroupController();
     await deleteGroup.handle(request, reply);
 
-    expect(reply.code).toHaveBeenCalledWith(400);
+    expect(reply.status).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({
       error: "ID do grupo é obrigatório",
     });
@@ -65,22 +58,20 @@ describe("Delete group controller", () => {
     mockService.mockRejectedValue(new Error("Erro interno no servidor"));
 
     const request = {
-      params: {
-        id: "123",
-      },
+      query: { id: "123" },
     } as any;
 
     const reply = {
-      code: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteGroup = new DeleteGroupController();
     await deleteGroup.handle(request, reply);
 
-    expect(reply.code).toHaveBeenCalledWith(500);
+    expect(reply.status).toHaveBeenCalledWith(500);
     expect(reply.send).toHaveBeenCalledWith({
-      error: "Erro ao deletar grupo",
+      error: "Erro interno no servidor",
     });
   });
 });

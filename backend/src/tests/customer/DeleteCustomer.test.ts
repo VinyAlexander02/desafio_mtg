@@ -18,9 +18,7 @@ describe("Delete Customer Controller", () => {
     mockService.mockResolvedValue({ message: "Deletado com sucesso" });
 
     const request = {
-      params: {
-        id: "123",
-      },
+      query: { id: "123" },
     } as any;
 
     const reply = {
@@ -36,25 +34,21 @@ describe("Delete Customer Controller", () => {
   });
 
   it("Should return an error if id is missing", async () => {
-    mockService.mockRejectedValue(new Error("Solicitação Inválida"));
-
     const request = {
-      params: {
-        id: "",
-      },
+      query: {},
     } as any;
 
     const reply = {
-      code: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteController = new DeleteCustomerController();
     await deleteController.handle(request, reply);
 
-    expect(reply.code).toHaveBeenCalledWith(400);
+    expect(reply.status).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({
-      message: "Solicitação Inválida",
+      message: "ID do cliente é obrigatório",
     });
   });
 
@@ -62,20 +56,18 @@ describe("Delete Customer Controller", () => {
     mockService.mockRejectedValue(new Error("Cliente não existe"));
 
     const request = {
-      params: {
-        id: "999",
-      },
+      query: { id: "999" },
     } as any;
 
     const reply = {
-      code: jest.fn().mockReturnThis(),
+      status: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteController = new DeleteCustomerController();
     await deleteController.handle(request, reply);
 
-    expect(reply.code).toHaveBeenCalledWith(400);
+    expect(reply.status).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({ message: "Cliente não existe" });
   });
 });
