@@ -1,4 +1,3 @@
-import { error } from "console";
 import { DeleteGroupController } from "../../controllers/groups/DeleteGroupController";
 import { DeleteGroupService } from "../../services/groups/DeleteGroupService";
 

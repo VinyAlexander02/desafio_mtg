@@ -1,4 +1,3 @@
-import { error } from "console";
 import { UpdateGroupController } from "../../controllers/groups/UpdateGroupController";
 import { UpdateGroupService } from "../../services/groups/UpdateGroupService";
 
