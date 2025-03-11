@@ -101,16 +101,14 @@ export default function UserGroupManagement() {
   }, [refresh]);
 
   async function loadCustomers() {
-    console.log("🔄 Carregando clientes...");
     const response = await api.get("/customer");
-    console.log("📦 Clientes recebidos:", response.data);
+
     setCustomers(response.data);
   }
 
   async function loadGroups() {
-    console.log("🔄 Carregando grupos...");
     const response = await api.get("/group");
-    console.log("📦 Grupos recebidos:", response.data);
+
     setGroups(response.data);
   }
 
@@ -179,7 +177,6 @@ export default function UserGroupManagement() {
         icon: "error",
         draggable: true,
       });
-      console.log("Erro ao deletar", error);
     }
   }
 
@@ -193,7 +190,7 @@ export default function UserGroupManagement() {
       });
       await loadGroups();
     } catch (error) {
-      console.log("Erro ao deletar", error);
+      return error;
     }
   }
 

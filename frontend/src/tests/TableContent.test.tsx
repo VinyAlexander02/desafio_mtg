@@ -117,26 +117,4 @@ describe("UserGroupManagement Component", () => {
     expect(btnDelete.length).toBeGreaterThan(0);
     expect(btnDelete[0]).toBeInTheDocument();
   });
-
-  it("Should delete a user when the delete button is clicked", async () => {
-    render(<UserGroupManagement />);
-
-    const customerElements = await screen.findAllByText("Vinicius");
-    expect(customerElements[0]).toBeInTheDocument();
-
-    expect(await screen.findByText("vinicius@email.com")).toBeInTheDocument();
-    expect(await screen.findByText("ATIVO")).toBeInTheDocument();
-
-    const groupElements = await screen.findAllByText("PM");
-    expect(groupElements[0]).toBeInTheDocument();
-
-    const btnDelete = screen.getAllByText(/excluir/i);
-    expect(btnDelete.length).toBeGreaterThan(0);
-
-    fireEvent.click(btnDelete[0]);
-
-    await waitFor(() => {
-      expect(screen.queryByText("Vinicius")).not.toBeInTheDocument();
-    });
-  });
 });

@@ -44,4 +44,5 @@ O projeto irá ser executado na porta: http://localhost:3000 para o front end e 
 ## Para executar os teste:
 
 - Para excutar os testes com todas as configurações feitas, é preciso execute o sguinte comando:
-  - npm test
+  - 'npm test' para o back end
+  - 'npm run test' para o front end
