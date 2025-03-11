@@ -1,4 +1,3 @@
-import exp from "constants";
 import { CreateGroupController } from "../../controllers/groups/CreateGroupController";
 import { CreateGroupService } from "../../services/groups/CreateGroupService";
 

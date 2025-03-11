@@ -58,4 +58,21 @@ describe("List Customer controller", () => {
     expect(replay.send).toHaveBeenCalledTimes(1);
     expect(replay.send).toHaveBeenCalledWith([]);
   });
+  it("Should return an error if the service fails", async () => {
+    mockService.mockRejectedValue(new Error("Erro ao listar Customers"));
+
+    const request = {} as any;
+    const reply = {
+      code: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    } as any;
+
+    const listController = new ListCustomerController();
+    await listController.handle(request, reply);
+
+    expect(reply.code).toHaveBeenCalledWith(500);
+    expect(reply.send).toHaveBeenCalledWith({
+      message: "Erro ao listar Customers",
+    });
+  });
 });
