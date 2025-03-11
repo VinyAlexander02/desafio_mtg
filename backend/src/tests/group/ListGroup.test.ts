@@ -1,4 +1,3 @@
-import { send } from "process";
 import { ListGroupController } from "../../controllers/groups/ListGroupController";
 import { ListGroupService } from "../../services/groups/ListGroupService";
 
