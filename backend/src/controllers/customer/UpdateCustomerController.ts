@@ -2,7 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { UpdateCustomerService } from "../../services/customer/UpdateCustomerService";
 
 class UpdateCustomerController {
-  async handle(request: FastifyRequest, replay: FastifyReply) {
+  async handle(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string };
       const { name, email, password, status } = request.body as {
@@ -22,13 +22,11 @@ class UpdateCustomerController {
         status,
       });
 
-      replay.send(updateCustomer);
+      reply.send(updateCustomer);
     } catch (error) {
-      if (error instanceof Error) {
-        replay.send({ error: error.message });
-      } else {
-        replay.send({ error: "Erro desconhecido" });
-      }
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
+      reply.code(400).send({ error: errorMessage });
     }
   }
 }

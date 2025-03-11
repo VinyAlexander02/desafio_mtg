@@ -10,9 +10,10 @@ class DeleteCustomerController {
       const customer = await deleteCustomerService.execute({ id });
       reply.send(customer);
     } catch (error) {
-      const errorMessage = (error as Error).message;
+      const errorMessage =
+        error instanceof Error ? error.message : "Erro desconhecido";
       console.error(error);
-      reply.send({ message: errorMessage });
+      reply.code(400).send({ message: errorMessage });
     }
   }
 }

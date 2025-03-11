@@ -14,7 +14,7 @@ describe("Update Customer Controller", () => {
     mockService.mockRestore();
   });
 
-  it("Should update customer data succesfully", async () => {
+  it("Should update customer data successfully", async () => {
     const updateCustomerMock = {
       id: "1",
       name: "test1",
@@ -37,18 +37,18 @@ describe("Update Customer Controller", () => {
       },
     } as any;
 
-    const replay = {
+    const reply = {
       send: jest.fn(),
     } as any;
 
     const updateController = new UpdateCustomerController();
-    await updateController.handle(request, replay);
+    await updateController.handle(request, reply);
 
-    expect(replay.send).toHaveBeenCalledTimes(1);
-    expect(replay.send).toHaveBeenCalledWith(updateCustomerMock);
+    expect(reply.send).toHaveBeenCalledTimes(1);
+    expect(reply.send).toHaveBeenCalledWith(updateCustomerMock);
   });
 
-  it("Should not update if id is not present", async () => {
+  it("Should return error if id is not present", async () => {
     mockService.mockRejectedValue(new Error("ID do usuário é obrigatório"));
 
     const request = {
@@ -64,14 +64,45 @@ describe("Update Customer Controller", () => {
     } as any;
 
     const reply = {
+      code: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const updateController = new UpdateCustomerController();
     await updateController.handle(request, reply);
 
+    expect(reply.code).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({
       error: "ID do usuário é obrigatório",
+    });
+  });
+
+  it("Should return an error message if an unexpected error occurs", async () => {
+    mockService.mockRejectedValue(new Error("Erro inesperado"));
+
+    const request = {
+      params: {
+        id: "1",
+      },
+      body: {
+        name: "test1",
+        email: "novoemail@test.com",
+        password: "159753",
+        status: true,
+      },
+    } as any;
+
+    const reply = {
+      code: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    } as any;
+
+    const updateController = new UpdateCustomerController();
+    await updateController.handle(request, reply);
+
+    expect(reply.code).toHaveBeenCalledWith(400);
+    expect(reply.send).toHaveBeenCalledWith({
+      error: "Erro inesperado",
     });
   });
 });

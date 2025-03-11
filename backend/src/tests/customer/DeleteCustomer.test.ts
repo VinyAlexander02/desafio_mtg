@@ -45,12 +45,14 @@ describe("Delete Customer Controller", () => {
     } as any;
 
     const reply = {
+      code: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteController = new DeleteCustomerController();
     await deleteController.handle(request, reply);
 
+    expect(reply.code).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({
       message: "Solicitação Inválida",
     });
@@ -66,12 +68,14 @@ describe("Delete Customer Controller", () => {
     } as any;
 
     const reply = {
+      code: jest.fn().mockReturnThis(),
       send: jest.fn(),
     } as any;
 
     const deleteController = new DeleteCustomerController();
     await deleteController.handle(request, reply);
 
+    expect(reply.code).toHaveBeenCalledWith(400);
     expect(reply.send).toHaveBeenCalledWith({ message: "Cliente não existe" });
   });
 });
