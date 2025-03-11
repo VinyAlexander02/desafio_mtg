@@ -17,7 +17,6 @@ export async function routes(
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) {
-  // Criar cliente
   fastify.post(
     "/customer",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -25,7 +24,6 @@ export async function routes(
     }
   );
 
-  // Listar clientes
   fastify.get(
     "/customer",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -33,7 +31,6 @@ export async function routes(
     }
   );
 
-  // Atualizar cliente
   fastify.put(
     "/customer/:id",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -41,7 +38,6 @@ export async function routes(
     }
   );
 
-  // Deletar cliente
   fastify.delete(
     "/customer",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -49,7 +45,6 @@ export async function routes(
     }
   );
 
-  // Criar grupo
   fastify.post(
     "/group",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -57,7 +52,6 @@ export async function routes(
     }
   );
 
-  // Listar grupos
   fastify.get(
     "/group",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -65,7 +59,6 @@ export async function routes(
     }
   );
 
-  // Atualizar grupo
   fastify.put(
     "/group/:id",
     async (request: FastifyRequest, reply: FastifyReply) => {
@@ -73,7 +66,6 @@ export async function routes(
     }
   );
 
-  // Deletar grupo
   fastify.delete(
     "/group",
     async (request: FastifyRequest, reply: FastifyReply) => {
